@@ -3,24 +3,29 @@
 const SaraSelectorBtn = document.querySelector('#Sara-selector')
 const SamSelectorBtn = document.querySelector('#Sam-selector')
 const chatHeader = document.querySelector('.chat-header')
-const chatMessages = document.querySelector('.chat-messages')
+const chatMessages = document.querySelector('.chat-container')
+const chats = document.querySelector('.chat-messages');
 const chatInputForm = document.querySelector('.chat-input-form')
 const chatInput = document.querySelector('.chat-input')
 const clearChatBtn = document.querySelector('.clear-chat-button')
 
 const messages = JSON.parse(localStorage.getItem('messages')) || []
 
-const createChatMessageElement = (message) => `
-  <div class="message ${message.sender === 'Sara' ? 'blue-bg' : 'gray-bg'}">
+function createChatMessageElement(message) {
+  const div = document.createElement('div')
+  div.className = `message ${message.sender === 'Sara' ? 'blue-bg' : 'gray-bg'}`
+  div.innerHTML = `
     <div class="message-sender">${message.sender}</div>
-    <div class="message-text">${message.text}</div>
+    <div class="message-text"></div>
     <div class="message-timestamp">${message.timestamp}</div>
-  </div>
-`
+  `
+  div.querySelector('.message-text').textContent = message.text
+  return div
+}
 
 window.onload = () => {
   messages.forEach((message) => {
-    chatMessages.innerHTML += createChatMessageElement(message)
+    chats.appendChild(createChatMessageElement(message))
   })
 }
 
@@ -41,7 +46,7 @@ const updateMessageSender = (name) => {
   }
 
   /* auto-focus the input field */
-  chatInput.focus()
+  if (chatInput) chatInput.focus()
 }
 
 SaraSelectorBtn.onclick = () => updateMessageSender('Sara')
@@ -62,7 +67,7 @@ const sendMessage = (e) => {
   localStorage.setItem('messages', JSON.stringify(messages))
 
   /* Add message to DOM */
-  chatMessages.innerHTML += createChatMessageElement(message)
+  chats.appendChild(createChatMessageElement(message))
 
   /* Clear input field */
   chatInputForm.reset()
@@ -73,7 +78,9 @@ const sendMessage = (e) => {
 
 chatInputForm.addEventListener('submit', sendMessage)
 
-clearChatBtn.addEventListener('click', () => {
-  localStorage.clear()
-  chatMessages.innerHTML = ''
-})
+if (clearChatBtn) {
+  clearChatBtn.addEventListener('click', () => {
+    localStorage.clear()
+    chats.innerHTML = ''
+  })
+}
